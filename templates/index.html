@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub API Flask App</title>
+</head>
+<body>
+    <h1>GitHub Repository Information</h1>
+    <form id="repo-form">
+        <input type="text" name="repo_name" id="repo_name" placeholder="Enter Repository Name" required>
+        <button type="submit">Get Repo Info</button>
+    </form>
+    <div id="repo-info"></div>
+
+    <h2>Repository Issues</h2>
+    <button id="fetch-issues">List Issues</button>
+    <ul id="issue-list"></ul>
+
+    <script>
+        document.getElementById('repo-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const repoName = document.getElementById('repo_name').value;
+            
+            fetch('/repo_info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `repo_name=${repoName}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                const repoInfoDiv = document.getElementById('repo-info');
+                if (data.error) {
+                    repoInfoDiv.innerHTML = `<p>${data.error}</p>`;
+                } else {
+                    repoInfoDiv.innerHTML = `
+                        <p><strong>Repository Name:</strong> ${data.name}</p>
+                        <p><strong>Description:</strong> ${data.description}</p>
+                        <p><strong>Stars:</strong> ${data.stars}</p>
+                        <p><strong>Forks:</strong> ${data.forks}</p>
+                    `;
+                }
+            })
+            .catch(error => console.error('Error fetching repo info:', error));
+        });
+
+        document.getElementById('fetch-issues').addEventListener('click', function() {
+            const repoName = document.getElementById('repo_name').value;
+            
+            fetch('/list_issues', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `repo_name=${repoName}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                const issueList = document.getElementById('issue-list');
+                issueList.innerHTML = '';
+                if (data.error) {
+                    issueList.innerHTML = `<li>${data.error}</li>`;
+                } else {
+                    data.forEach(issue => {
+                        issueList.innerHTML += `<li><a href="${issue.url}" target="_blank">${issue.title}</a></li>`;
+                    });
+                }
+            })
+            .catch(error => console.error('Error fetching issues:', error));
+        });
+    </script>
+</body>
+</html>
