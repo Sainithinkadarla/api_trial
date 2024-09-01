@@ -3,7 +3,7 @@ import requests
 
 app = Flask(__name__)
 
-# Replace these with your GitHub username and token
+
 GITHUB_USERNAME = "Sainithinkadarla"
 GITHUB_TOKEN = "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"
 
